@@ -10,15 +10,14 @@ def calculate_distance(point_a, point_b):
 
 app = Flask('my_distance')
 
-distances = list()
+distances = []
 
 @app.route('/', methods=['GET', 'POST'])
 def html_calculate():
     if request.method == 'GET':
-    # Si get, afficher la page vide
-        return render_template('index.html', result=None)
+        return render_template('index.html', result=None, error=None)
+
     if request.method == 'POST':
-    # Si post, calculer et afficher le résultat
         try:
             point_a = list(map(float, request.form['apoint'].split(',')))
             point_b = list(map(float, request.form['bpoint'].split(',')))
@@ -61,19 +60,18 @@ def index():
 
 @app.route('/api/distances')
 def already_calculated():
-    starttime = datetime.now()
-    result = list(map(lambda x: {
-                    'requested_at': x['requested_at'],
-                    'result_distance': x['result_distance'],
-                    'start_point': x['start_point'],
-                    'end_point': x['end_point']        
-    }, distances))
-    end = datetime.now()
-    return result
-    print(f'result given in {end - starttime} secondes')
+    return [
+        {
+            'requested_at': x['requested_at'],
+            'result_distance': x['result_distance'],
+            'start_point': x['start_point'],
+            'end_point': x['end_point']
+        }
+        for x in distances
+    ]
 
-@app.route('/api/distance', methods=['POST', 'GET', 'PUT'])
-def Calculate():
+@app.route('/api/distance', methods=['POST'])
+def calculate():
     point_a = list(map(float, request.json['point_a'].split(',')[0:2]))
     point_b = list(map(float, request.json['point_b'].split(',')[0:2]))
 
