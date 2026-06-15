@@ -2,6 +2,12 @@ from flask import Flask, request, render_template
 from math import sqrt
 from datetime import datetime
 
+def calculate_distance(point_a, point_b):
+    return sqrt(
+        (point_b[0] - point_a[0])**2 +
+        (point_b[1] - point_a[1])**2
+    )
+
 app = Flask('my_distance')
 
 distances = list()
@@ -13,22 +19,21 @@ def html_calculate():
         return render_template('index.html', result=None)
     if request.method == 'POST':
     # Si post, calculer et afficher le résultat
-        eNd = tuple(map(lambda x: int(x), request.form['apoint'].split(',')[0:2]))
-        start = list(map(lambda y: int(y), request.form['bpoint'].split(',')[0:2]))
-        startPoint = start
-        result_tmp = sqrt((eNd[1] - start[1])**2 + (eNd[0] - startPoint[0])**2)
-        EndPoint = eNd
+        point_a = list(map(float, request.form['apoint'].split(',')[0:2]))
+        point_b = list(map(float, request.form['bpoint'].split(',')[0:2]))
+
+        result_tmp = calculate_distance(point_a, point_b)
         result =             {
                     'requested_at': datetime.now(),
                     'result_distance': result_tmp,
-                    'start_point': startPoint,
-                    'end_point': EndPoint
+                    'start_point': point_a,
+                    'end_point': point_b        
                 }
         distances.append({
                     'requested_at': datetime.now(),
                     'result_distance': result_tmp,
-                    'start_point': startPoint,
-                    'end_point': EndPoint
+                    'start_point': point_a,
+                    'end_point': point_b
                 })    
         return render_template('index.html', result=result)
 
@@ -51,17 +56,18 @@ def already_calculated():
 
 @app.route('/api/distance', methods=['POST', 'GET', 'PUT'])
 def Calculate():
-    startPoint = request.json['start_point']
-    startPoint = list(map(lambda y: int(y), request.json['start_point'].split(',')[0:2]))
-    EndPoint = tuple(map(lambda x: int(x), request.json['end_point'].split(',')[0:2]))
-    
-    result_tmp = sqrt((EndPoint[1] - startPoint[1])**2 + (EndPoint[0] - startPoint[0])**2)
-    result =             {
-                'requested_at': datetime.now(),
-                'result_distance': result_tmp,
-                'start_point': startPoint,
-                'end_point': EndPoint
-            }
+    point_a = list(map(float, request.json['point_a'].split(',')[0:2]))
+    point_b = list(map(float, request.json['point_b'].split(',')[0:2]))
+
+    result_tmp = calculate_distance(point_a, point_b)
+
+    result = {
+        'requested_at': datetime.now(),
+        'result_distance': result_tmp,
+        'start_point': point_a,
+        'end_point': point_b
+    }
+
     return result
 
 
