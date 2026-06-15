@@ -1,11 +1,23 @@
 <!DOCTYPE html>
-<head></head>
+<head>
+    <title>Distance</title>
+</head>
 <body>
-    <p>Votre resultat est {{ result }}</p>
     <h1>Distance</h1>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    {% if result %}
+        <p>Votre résultat est {{ result.result_distance }}</p>
+        <p>Point A : {{ result.start_point }}</p>
+        <p>Point B : {{ result.end_point }}</p>
+    {% endif %}
+
     <form method="POST" action="/">
-        <input type="text" name="apoint" id="apoint">
-        <input type="text" name="bpoint" id="bpoint">
+        <input type="text" name="apoint" id="apoint" placeholder="Ex: 2,5">
+        <input type="text" name="bpoint" id="bpoint" placeholder="Ex: 1,6">
         <input type="submit" value="soumettre">
     </form>
 </body>

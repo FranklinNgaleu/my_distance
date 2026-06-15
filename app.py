@@ -19,23 +19,41 @@ def html_calculate():
         return render_template('index.html', result=None)
     if request.method == 'POST':
     # Si post, calculer et afficher le résultat
-        point_a = list(map(float, request.form['apoint'].split(',')[0:2]))
-        point_b = list(map(float, request.form['bpoint'].split(',')[0:2]))
+        try:
+            point_a = list(map(float, request.form['apoint'].split(',')))
+            point_b = list(map(float, request.form['bpoint'].split(',')))
 
-        result_tmp = calculate_distance(point_a, point_b)
-        result =             {
-                    'requested_at': datetime.now(),
-                    'result_distance': result_tmp,
-                    'start_point': point_a,
-                    'end_point': point_b        
-                }
-        distances.append({
-                    'requested_at': datetime.now(),
-                    'result_distance': result_tmp,
-                    'start_point': point_a,
-                    'end_point': point_b
-                })    
-        return render_template('index.html', result=result)
+            if len(point_a) != 2 or len(point_b) != 2:
+                return render_template(
+                    'index.html',
+                    result=None,
+                    error="Chaque point doit contenir deux coordonnées (ex: 2,5)"
+                )
+
+            result_tmp = calculate_distance(point_a, point_b)
+
+            result = {
+                'requested_at': datetime.now(),
+                'result_distance': result_tmp,
+                'start_point': point_a,
+                'end_point': point_b
+            }
+
+            distances.append(result)
+
+            return render_template(
+                'index.html',
+                result=result,
+                error=None
+            )
+
+        except ValueError:
+            return render_template(
+                'index.html',
+                result=None,
+                error="Les coordonnées doivent être numériques (ex: 2,5)"
+            )
+        return render_template('index.html',result=None,error=None)
 
 @app.route('/api')
 def index():
